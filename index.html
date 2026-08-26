@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwannamom POS v1.2.0 (Final Release)</title>
+    
+    <!-- Google Fonts & PDF & Excel Libraries -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2d5a27;
+            --primary-hover: #1e3d1a;
+            --secondary: #8fbc8f;
+            --accent: #d4a373;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #2b2b2b;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --help: #e0a800;
+            --excel: #1d6f42;
+            --purple: #6f42c1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 600; color: #faedcd; text-align: center; }
+        .nav-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        .header-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 0.5rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: opacity 0.2s;
+        }
+        .header-btn:hover { opacity: 0.9; }
+        .header-btn.history { background: #4a7c59; }
+        .header-btn.backup { background: var(--purple); }
+        .header-btn.help { background: var(--help); color: #212529; font-weight: 600; }
+
+        .main-container { flex: 1; }
+
+        /* Dashboard Bar */
+        .dashboard-bar {
+            max-width: 1200px;
+            margin: 1rem auto 0;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-left: 5px solid var(--primary);
+        }
+        .stat-card.sales { border-left-color: var(--info); }
+        .stat-card.items { border-left-color: var(--accent); }
+        .stat-title { font-size: 0.85rem; color: #666; }
+        .stat-value { font-size: 1.3rem; font-weight: 600; color: var(--text); margin-top: 0.2rem; }
+
+        /* Control Panel */
+        .controls {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar, .filter-select {
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+        .search-bar { flex: 1; min-width: 180px; }
+
+        .btn-action-sm {
+            background: #6c757d;
+            color: white;
+            padding: 0.6rem 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.88rem;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-action-sm:hover { opacity: 0.9; }
+        .btn-action-sm.excel { background: var(--excel); }
+        .btn-action-sm.purple { background: var(--purple); }
+        .hidden-input { display: none; }
+
+        /* Product Grid & Card */
+        .product-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+        
+        .card-img-wrapper {
+            width: 100%;
+            height: 160px;
+            background-color: #e9ecef;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .card-img-wrapper::after {
+            content: "🔍 ขยาย";
+            position: absolute;
+            top: 8px; right: 8px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .card-img-wrapper:hover::after { opacity: 1; }
+
+        .card-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .card:hover .card-img { transform: scale(1.05); }
+
+        .card-body { padding: 0.8rem; }
+        .badge { background: var(--secondary); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+        .card-title { margin: 0.4rem 0; font-size: 0.95rem; font-weight: 500; line-height: 1.3; }
+        .price { font-size: 1.15rem; font-weight: 600; color: var(--primary); margin: 0.4rem 0; }
+
+        .add-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.65rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .add-btn:hover { background: var(--primary-hover); }
+
+        /* Floating Back To Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 46px;
+            height: 46px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #1e3d1a;
+            color: #d4a373;
+            text-align: center;
+            padding: 1.2rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 400;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Modal Base */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: flex-start;
+            padding: 1rem 0.5rem;
+            z-index: 1000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 550px;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+            margin: auto 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-content.wide { 
+            max-width: 900px; 
+        }
+
+        /* WATERMARK DEMO BACKGROUND */
+        #cart-receipt {
+            position: relative;
+            overflow: hidden;
+        }
+        #cart-receipt::before {
+            content: "DEMO";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7rem;
+            font-weight: 800;
+            color: rgba(0, 0, 0, 0.06);
+            pointer-events: none;
+            user-select: none;
+            z-index: 1;
+        }
+        #cart-receipt > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Cart Items Layout */
+        .cart-item {
+            display: flex; 
+            align-items: center;
+            margin-bottom: 0.8rem; 
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.6rem;
+        }
+        .cart-item-thumb {
+            width: 42px; height: 42px; 
+            object-fit: cover;
+            border-radius: 6px; 
+            margin-right: 0.6rem; 
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+        .cart-item-info { 
+            flex: 1; 
+            font-size: 0.85rem; 
+            padding-right: 0.4rem;
+            word-break: break-word;
+            overflow: visible;
+        }
+        .cart-item-title {
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 0.2rem;
+            color: #333;
+        }
+        .cart-item-price-detail {
+            color: #555;
+            font-size: 0.82rem;
+        }
+
+        .cart-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+        .qty-btn {
+            background: #e9ecef; border: 1px solid #ced4da;
+            width: 28px; height: 28px; border-radius: 4px;
+            cursor: pointer; font-weight: 600;
+        }
+        .qty-btn:hover { background: #dee2e6; }
+        .qty-display { min-width: 20px; text-align: center; font-weight: 600; font-size: 0.9rem; }
+        .delete-btn {
+            background: var(--danger); color: white; border: none;
+            width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
+            margin-left: 0.4rem;
+        }
+
+        .payment-box {
+            background: rgba(241, 248, 241, 0.8); border: 1px solid #c8e6c9;
+            border-radius: 8px; padding: 0.8rem 1rem; margin-top: 1rem;
+        }
+        .payment-row {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 0.4rem; font-size: 0.9rem;
+        }
+        .payment-input {
+            width: 110px; padding: 0.3rem 0.5rem;
+            border: 1px solid #bbb; border-radius: 6px;
+            font-size: 1rem; text-align: right; font-weight: 600;
+        }
+        .print-text-only { display: none; font-size: 1rem; font-weight: 700; color: #000; }
+        .change-text { font-size: 1.1rem; font-weight: 700; color: var(--danger); }
+        .change-text.sufficient { color: var(--primary); }
+
+        .cart-actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+        .action-btn {
+            padding: 0.6rem; border: none; border-radius: 6px;
+            cursor: pointer; font-weight: 500; font-size: 0.95rem; color: white;
+        }
+        .pdf-btn { background: #fd7e14; }
+
+        /* History Filter Styles */
+        .history-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            background: #f1f3f5;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-top: 0.6rem;
+            font-size: 0.85rem;
+        }
+        .history-filters select, .history-filters input[type="date"] {
+            padding: 0.35rem 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.82rem; }
+        .history-table th, .history-table td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        .history-table th { background: #f1f1f1; }
+
+        /* Lightbox Preview */
+        #img-preview-modal { background: rgba(0,0,0,0.85); }
+        .img-preview-container {
+            position: relative;
+            max-width: 90vw; max-height: 85vh;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .img-preview-src {
+            max-width: 100%; max-height: 75vh;
+            border-radius: 8px; object-fit: contain;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+        }
+        .img-preview-title { color: white; margin-top: 1rem; font-size: 1rem; font-weight: 500; text-align: center; }
+        .img-preview-close {
+            position: absolute; top: -40px; right: 0;
+            color: white; font-size: 2rem; cursor: pointer;
+            background: none; border: none;
+        }
+
+        /* Manual Styles inside Modal */
+        .help-section {
+            margin-bottom: 1.2rem;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 0.8rem;
+        }
+        .help-section:last-child { border-bottom: none; }
+        .help-title {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 768px) {
+            .modal { padding: 0.5rem; }
+            .modal-content { 
+                width: 100%; 
+                padding: 1rem; 
+                max-height: calc(100vh - 1rem); 
+            }
+            .back-to-top {
+                bottom: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #cart-receipt, #cart-receipt * { visibility: visible; }
+            #cart-receipt { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 20px; }
+            .cart-actions, .qty-btn, .delete-btn { display: none !important; }
+            .cart-item-thumb { display: none !important; }
+            .payment-input, #change-amount-wrapper { display: none !important; }
+            .print-text-only { display: inline !important; }
+            footer, .back-to-top { display: none !important; }
+        }
+    </style>
+</head>
+<body id="top">
+
+    <header>
+        <div class="logo">ขวัญน้ำอ้อม <small style="font-size: 0.7rem; opacity: 0.8;">v1.2.0</small></div>
+        <div class="nav-btns">
+            <button class="header-btn help" onclick="toggleModal('help-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg> คู่มือ
+            </button>
+            <button class="header-btn backup" onclick="toggleModal('backup-modal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg> สำรอง
+            </button>
+            <button class="header-btn history" onclick="openHistoryModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <polyline points="12 7 12 12 15 15"></polyline>
+                </svg> ประวัติ
+            </button>          
+            <button class="header-btn" style="background: #e07a5f; color: #ffffff; font-weight: 600;" onclick="toggleModal('cart-modal')">
+                🛒 ตะกร้า (<span id="cart-count">0</span>)
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="dashboard-bar">
+            <div class="stat-card">
+                <div class="stat-title">ยอดขายรวมทั้งหมด</div>
+                <div class="stat-value">฿<span id="dash-total-revenue">0.00</span></div>
+            </div>
+            <div class="stat-card sales">
+                <div class="stat-title">จำนวนรายการขาย</div>
+                <div class="stat-value"><span id="dash-total-orders">0</span> รายการ</div>
+            </div>
+            <div class="stat-card items">
+                <div class="stat-title">จำนวนสินค้าที่ขายได้</div>
+                <div class="stat-value"><span id="dash-total-items">0</span> ชิ้น</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="search" class="search-bar" placeholder="ค้นหาข้าวออร์แกนิค..." oninput="renderProducts()">
+            <select id="filter" class="filter-select" onchange="renderProducts()">
+                <option value="all">หมวดหมู่ทั้งหมด</option>
+            </select>
+        </div>
+
+        <main class="product-grid" id="product-grid"></main>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="btn-back-to-top" onclick="scrollToTop()" title="กลับขึ้นด้านบน">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        Copyright © Kwannamom.com 2026, AI Gemini,<br>Dev : jasubin@hotmail.com
+    </footer>
+
+    <!-- Updated Complete Help Modal -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content wide">
+            <h3 style="color: var(--primary); margin-bottom: 0.3rem;">📖 คู่มือการใช้งานระบบ Kwannamom POS (v1.2.0)</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 1.2rem;">ระบบจัดการขายหน้าร้าน เครือข่ายวิสาหกิจชุมชนเกษตรกรรมยั่งยืนน้ำอ้อม</p>
+            
+            <div class="help-section">
+                <div class="help-title">🛒 1. การเลือกสินค้าและการจัดการตะกร้า</div>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: #444;">
+                    <li><strong>เลือกสินค้า:</strong> ค้นหาชื่อสินค้าหรือเลือกหมวดหมู่ แล้วกดปุ่ม <code>+ เพิ่ม</code> เพื่อนำสินค้าเข้าตะกร้า</li>
+                    <li><strong>ดูรูปสินค้า:</strong> คลิกที่รูปภาพเพื่อขยายดูรูปตัวอย่างสินค้า</li>
+                    <li><strong>ปรับจำนวน:</strong> ไปที่เมนู 🛒 <strong>ตะกร้า</strong> เพื่อปรับเพิ่ม/ลด (<code>+</code>/<code>-</code>) หรือกดปุ่ม <code>✕</code> เพื่อลบสินค้า</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <div class="help-title">💵 2. การรับเงิน พิมพ์ใบเสร็จ และส่งออก PDF</div>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: #444;">
+                    <li><strong>รับเงิน:</strong> ป้อนยอดเงินที่ได้รับในช่อง <code>รับเงินมา</code> ระบบจะคำนวณเงินทอนให้อัตโนมัติ</li>
+                    <li><strong>ชำระเงิน & พิมพ์:</strong> กดปุ่ม <code>ชำระเงิน & พิมพ์ใบเสร็จ</code> เพื่อบันทึกการขายและสั่งพิมพ์ใบเสร็จผ่านเครื่องพิมพ์</li>
+                    <li><strong>ดาวน์โหลด PDF:</strong> กดปุ่ม <code>ดาวน์โหลด PDF</code> หากต้องการบันทึกใบเสร็จเป็นไฟล์ลงเครื่อง</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <div class="help-title">📋 3. การดูประวัติขายและการส่งออก Excel</div>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: #444;">
+                    <li><strong>ดูประวัติย้อนหลัง:</strong> กดปุ่ม 📋 <strong>ประวัติ</strong> บนแถบเมนูหลัก</li>
+                    <li><strong>ตัวกรองช่วงเวลา:</strong> สามารถเลือกดูตาม <em>ทั้งหมด / วันนี้ / สัปดาห์นี้ / เดือนนี้ / กำหนดวันเอง</em> ได้</li>
+                    <li><strong>Export Excel:</strong> กดปุ่ม <code>📊 Export Excel</code> เพื่อดาวน์โหลดรายงานยอดขายช่วงเวลานั้นๆ เป็นไฟล์ `.xlsx`</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <div class="help-title">💾 4. การสำรองและการคืนค่าข้อมูล (Backup & Restore)</div>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: #444;">
+                    <li><strong>สำรองข้อมูล:</strong> กดปุ่ม 💾 <strong>สำรอง</strong> และเลือก <code>ดาวน์โหลด Backup (.json)</code> เพื่อเก็บข้อมูลสินค้าและประวัติขาย</li>
+                    <li><strong>คืนค่าข้อมูล:</strong> เลือก <code>คืนค่าข้อมูลจากไฟล์</code> แล้วเลือกไฟล์ `.json` ที่เคยสำรองไว้</li>
+                </ul>
+            </div>
+
+            <button class="add-btn" style="background: #6c757d; margin-top: 0.8rem;" onclick="toggleModal('help-modal')">ปิดคู่มือ (Close)</button>
+        </div>
+    </div>
+
+    <!-- Backup Modal -->
+    <div class="modal" id="backup-modal">
+        <div class="modal-content">
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">💾 สำรอง & คืนค่าข้อมูล</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem;">
+                <button class="btn-action-sm purple" style="justify-content: center;" onclick="exportFullBackupJSON()">⬇️ ดาวน์โหลด Backup (.json)</button>
+                <label for="full-restore-input" class="btn-action-sm" style="background: var(--info); justify-content: center;">📂 คืนค่าข้อมูลจากไฟล์</label>
+                <input type="file" id="full-restore-input" class="hidden-input" accept=".json" onchange="importFullBackupJSON(event)">
+            </div>
+            <button class="add-btn" style="background: #6c757d; margin-top: 1rem;" onclick="toggleModal('backup-modal')">ปิด (Close)</button>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-content" id="cart-receipt">
+            <h3 style="text-align: center;">ใบเสร็จ</h3>
+            <p style="font-size: 0.8rem; color: var(--primary); text-align: center; font-weight: 600;">เครือข่ายวิสาหกิจชุมชนเกษตรกรรมยั่งยืนน้ำอ้อม</p>
+            <p style="font-size: 0.6rem; color: var(--primary); text-align: center; font-weight: 600;">82 หมู่ 10 บ้านศิริพัฒนา ต.น้ำอ้อม อ.ค้อวัง จ.ยโสธร 35160.</p>
+            
+            <p style="margin: 2px 0; font-size: 0.9rem; color: #555;">
+                <strong>เลขที่อ้างอิง:</strong> <span id="receipt-no">-</span>
+            </p>
+            <div style="background: rgba(248, 249, 250, 0.85); border: 1px dashed #ced4da; border-radius: 6px; padding: 0.4rem 0.6rem; margin: 0.6rem 0; font-size: 0.78rem;">
+                <strong>วัน-เวลา:</strong> <span id="receipt-datetime">-</span>
+            </div>
+            <p style="margin: 1px 0; font-size: 0.9rem; color: #555;">
+                <span>รายการ___________________</span>
+            </p>
+            <div id="cart-items"></div>
+            
+            <div class="payment-box">
+                <div class="payment-row">
+                    <span>ยอดรวม:</span>
+                    <strong>฿<span id="cart-total">0.00</span></strong>
+                </div>
+                <div class="payment-row">
+                    <label for="cash-received">รับเงินมา:</label>
+                    <div>
+                        <input type="number" id="cash-received" class="payment-input" placeholder="0.00" min="0" oninput="calculateChange()">
+                        <span id="cash-received-print" class="print-text-only">฿0.00</span>
+                    </div>
+                </div>
+                <div class="payment-row" style="margin-top: 0.4rem;">
+                    <span>เงินทอน:</span>
+                    <span class="change-text" id="change-amount-wrapper">฿<span id="change-amount">0.00</span></span>
+                    <span id="change-amount-print" class="print-text-only">฿0.00</span>
+                </div>
+            </div>
+            <br>
+            <p style="font-size: 0.6rem; color: var(--primary); text-align: right; font-weight: 600;">___________</p>
+            <p style="font-size: 0.6rem; color: var(--primary); text-align: right; font-weight: 600;">......ผู้ขาย....</p>
+            
+            <div class="cart-actions">
+                <button class="add-btn" onclick="checkout()">ชำระเงิน & พิมพ์ใบเสร็จ</button>
+                <button class="action-btn pdf-btn" onclick="downloadPDF()">ดาวน์โหลด PDF</button>
+                <button class="add-btn" style="background: #6c757d;" onclick="closeCartModal()">ปิด (Close)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal" id="history-modal">
+        <div class="modal-content wide">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-weight: 600;">ประวัติการขาย</h3>
+                <button class="btn-action-sm excel" onclick="exportSalesExcel()">📊 Export Excel</button>
+            </div>
+            
+            <div class="history-filters">
+                <label><strong>ช่วงเวลา:</strong></label>
+                <select id="history-period-select" onchange="handlePeriodChange()">
+                    <option value="all">ทั้งหมด (All Time)</option>
+                    <option value="today">วันนี้ (Today)</option>
+                    <option value="week">สัปดาห์นี้ (This Week)</option>
+                    <option value="month">เดือนนี้ (This Month)</option>
+                    <option value="custom">กำหนดวันเอง (Custom Date)</option>
+                </select>
+
+                <div id="custom-date-container" style="display: none; align-items: center; gap: 0.4rem;">
+                    <span>เริ่ม:</span>
+                    <input type="date" id="history-start-date" onchange="renderHistoryTable()">
+                    <span>ถึง:</span>
+                    <input type="date" id="history-end-date" onchange="renderHistoryTable()">
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ออเดอร์</th>
+                            <th>วัน-เวลา</th>
+                            <th>รายการ</th>
+                            <th>ยอดรวม</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body"></tbody>
+                </table>
+            </div>
+            <button class="add-btn" style="background: #6c757d; margin-top: 1rem;" onclick="toggleModal('history-modal')">ปิด (Close)</button>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal" id="img-preview-modal" onclick="toggleModal('img-preview-modal')">
+        <div class="img-preview-container" onclick="event.stopPropagation()">
+            <button class="img-preview-close" onclick="toggleModal('img-preview-modal')">&times;</button>
+            <img id="img-preview-src" class="img-preview-src" src="" alt="Product Preview" onerror="handleImgError(this)">
+            <div id="img-preview-title" class="img-preview-title"></div>
+        </div>
+    </div>
+
+    <script>
+        const SVG_FALLBACK = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'><rect width='100%' height='100%' fill='%23e9ecef'/><text x='50%' y='50%' font-family='Prompt, sans-serif' font-size='20' fill='%236c757d' dominant-baseline='middle' text-anchor='middle'>🌾 No Image</text></svg>";
+
+        const DEFAULT_PRODUCTS = [
+            { id: 1, name: "ข้าวหอมมะลิออร์แกนิค (Jasmine Rice)", category: "White", price: 180, weight: "2 kg", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600" },
+            { id: 2, name: "ข้าวบาสมาติกล้อง (Brown Basmati)", category: "Brown Rice", price: 220, weight: "2 kg", image: "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=600" },
+            { id: 3, name: "ข้าวไรซ์เบอร์รี่ (Wild Black Rice)", category: "Specialty", price: 250, weight: "1 kg", image: "https://images.unsplash.com/photo-1596560544525-41e976865239?w=600" },
+            { id: 4, name: "ข้าวสังข์หยดออร์แกนิค (Red Cargo)", category: "Specialty", price: 210, weight: "1 kg", image: "" },
+            { id: 5, name: "ข้าวกล้องงอกกาบา (GABA Brown)", category: "Brown Rice", price: 290, weight: "2 kg", image: "" }
+        ];
+
+        let products = JSON.parse(localStorage.getItem('pos_products')) || null;
+        let salesHistory = JSON.parse(localStorage.getItem('pos_sales_history')) || null;
+        let cart = [];
+
+        async function loadInitialDataFromJSON() {
+            if (!products || !salesHistory) {
+                try {
+                    const response = await fetch('./full_pos_backup.json');
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (!products && data.products) {
+                            products = data.products;
+                            localStorage.setItem('pos_products', JSON.stringify(products));
+                        }
+                        if (!salesHistory && data.salesHistory) {
+                            salesHistory = data.salesHistory;
+                            localStorage.setItem('pos_sales_history', JSON.stringify(salesHistory));
+                        }
+                    }
+                } catch (err) {
+                    console.warn("ไม่สามารถโหลดไฟล์ backup JSON ได้ ใช้ข้อมูลเริ่มต้นแทน", err);
+                }
+            }
+
+            if (!products) {
+                products = DEFAULT_PRODUCTS;
+                localStorage.setItem('pos_products', JSON.stringify(products));
+            }
+            if (!salesHistory) {
+                salesHistory = [];
+                localStorage.setItem('pos_sales_history', JSON.stringify(salesHistory));
+            }
+
+            renderApp();
+        }
+
+        function formatThaiDateTime(dateObj) {
+            const d = dateObj || new Date();
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear() + 543;
+            
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const ss = String(d.getSeconds()).padStart(2, '0');
+
+            return `${dd}/${mm}/${yyyy}, ${hh}:${min}:${ss}`;
+        }
+
+        function generateReceiptInfo() {
+            const now = new Date();
+            const dateStr = formatThaiDateTime(now);
+
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            
+            const receiptNo = `REC-${yyyy}${mm}${dd}-${randomNum}`;
+
+            document.getElementById('receipt-no').innerText = receiptNo;
+            document.getElementById('receipt-datetime').innerText = dateStr;
+            return receiptNo;
+        }
+
+        function parseOrderDate(order) {
+            if (order.isoDate) return new Date(order.isoDate);
+            
+            if (order.timestamp) {
+                const parts = order.timestamp.split(', ');
+                if (parts.length === 2) {
+                    const dateParts = parts[0].split('/');
+                    const timeParts = parts[1].split(':');
+                    if (dateParts.length === 3 && timeParts.length === 3) {
+                        let year = parseInt(dateParts[2]);
+                        if (year > 2500) year -= 543;
+                        return new Date(
+                            year, 
+                            parseInt(dateParts[1]) - 1, 
+                            parseInt(dateParts[0]), 
+                            parseInt(timeParts[0]), 
+                            parseInt(timeParts[1]), 
+                            parseInt(timeParts[2])
+                        );
+                    }
+                }
+            }
+            return new Date(0);
+        }
+
+        function renderApp() {
+            updateCategoryFilterOptions();
+            renderProducts();
+            updateDashboard();
+        }
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function closeCartModal() {
+            toggleModal('cart-modal');
+        }
+
+        function handleImgError(img) {
+            img.onerror = null;
+            img.src = SVG_FALLBACK;
+        }
+
+        function openImagePreview(src, title) {
+            const modalSrc = document.getElementById('img-preview-src');
+            const modalTitle = document.getElementById('img-preview-title');
+            modalSrc.src = src || SVG_FALLBACK;
+            modalTitle.innerText = title;
+            toggleModal('img-preview-modal');
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const search = document.getElementById('search').value.toLowerCase().trim();
+            const filter = document.getElementById('filter').value;
+
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(search);
+                const matchesFilter = filter === 'all' || p.category === filter;
+                return matchesSearch && matchesFilter;
+            });
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="card">
+                    <div class="card-img-wrapper" onclick="openImagePreview('${p.image || SVG_FALLBACK}', '${p.name.replace(/'/g, "\\'")}')">
+                        <img class="card-img" src="${p.image || SVG_FALLBACK}" alt="${p.name}" loading="lazy" onerror="handleImgError(this)">
+                    </div>
+                    <div class="card-body">
+                        <span class="badge">${p.category || 'General'}</span>
+                        <h4 class="card-title">${p.name}</h4>
+                        <div class="price">฿${Number(p.price).toFixed(2)}</div>
+                        <button class="add-btn" onclick="addToCart(${p.id})">+ เพิ่ม</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateCategoryFilterOptions() {
+            const filterSelect = document.getElementById('filter');
+            const categories = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+            filterSelect.innerHTML = categories.map(c => `<option value="${c}">${c === 'all' ? 'หมวดหมู่ทั้งหมด' : c}</option>`).join('');
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const item = cart.find(i => i.id === productId);
+            if (item) item.qty++;
+            else cart.push({ ...product, qty: 1 });
+            updateCartUI();
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(i => i.id !== productId);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, i) => sum + i.qty, 0);
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            
+            document.getElementById('cart-count').textContent = count;
+            document.getElementById('cart-total').textContent = total.toFixed(2);
+
+            const receiptNoEl = document.getElementById('receipt-no');
+            if (cart.length > 0 && receiptNoEl.innerText === '-') {
+                generateReceiptInfo();
+            }
+
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#777; padding: 1rem 0;">ไม่มีสินค้าในตะกร้า</p>';
+                document.getElementById('cash-received').value = '';
+                receiptNoEl.innerText = '-';
+                document.getElementById('receipt-datetime').innerText = '-';
+                calculateChange();
+                return;
+            }
+
+            container.innerHTML = cart.map(i => `
+                <div class="cart-item">
+                    <img class="cart-item-thumb" src="${i.image || SVG_FALLBACK}" alt="${i.name}" onerror="handleImgError(this)">
+                    <div class="cart-item-info">
+                        <div class="cart-item-title">${i.name}</div>
+                        <div class="cart-item-price-detail">฿${Number(i.price).toFixed(2)} × ${i.qty} = <strong>฿${(i.price * i.qty).toFixed(2)}</strong></div>
+                    </div>
+                    <div class="cart-controls">
+                        <button class="qty-btn" onclick="changeQty(${i.id}, -1)">-</button>
+                        <span class="qty-display">${i.qty}</span>
+                        <button class="qty-btn" onclick="changeQty(${i.id}, 1)">+</button>
+                        <button class="delete-btn" onclick="changeQty(${i.id}, -${i.qty})">✕</button>
+                    </div>
+                </div>
+            `).join('');
+
+            calculateChange();
+        }
+
+        function calculateChange() {
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const cash = parseFloat(document.getElementById('cash-received').value) || 0;
+            const changeEl = document.getElementById('change-amount');
+            const wrapper = document.getElementById('change-amount-wrapper');
+
+            const cashPrint = document.getElementById('cash-received-print');
+            const changePrint = document.getElementById('change-amount-print');
+
+            cashPrint.textContent = `฿${cash.toFixed(2)}`;
+
+            if (cash >= total && total > 0) {
+                const changeVal = (cash - total).toFixed(2);
+                changeEl.textContent = changeVal;
+                changePrint.textContent = `฿${changeVal}`;
+                wrapper.className = "change-text sufficient";
+            } else if (cash > 0 && cash < total) {
+                changeEl.textContent = "เงินไม่พอ";
+                changePrint.textContent = "เงินไม่พอ";
+                wrapper.className = "change-text";
+            } else {
+                changeEl.textContent = "0.00";
+                changePrint.textContent = "฿0.00";
+                wrapper.className = "change-text";
+            }
+        }
+
+        function checkout() {
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const cash = parseFloat(document.getElementById('cash-received').value) || 0;
+
+            if (cart.length === 0) return alert("ไม่มีสินค้าในตะกร้า!");
+            if (cash < total) return alert(`เงินไม่พอ ขาดอีก ฿${(total - cash).toFixed(2)}`);
+
+            const receiptNo = document.getElementById('receipt-no').innerText;
+
+            const order = {
+                orderId: receiptNo !== '-' ? receiptNo : 'ORD-' + Date.now(),
+                timestamp: document.getElementById('receipt-datetime').innerText,
+                isoDate: new Date().toISOString(),
+                items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty })),
+                totalAmount: total, cashReceived: cash, changeAmount: cash - total
+            };
+
+            salesHistory.push(order);
+            localStorage.setItem('pos_sales_history', JSON.stringify(salesHistory));
+
+            updateDashboard();
+            window.print();
+
+            cart = [];
+            updateCartUI();
+        }
+
+        function updateDashboard() {
+            const revenue = salesHistory.reduce((sum, o) => sum + o.totalAmount, 0);
+            const itemsCount = salesHistory.reduce((sum, o) => sum + o.items.reduce((iSum, i) => iSum + i.qty, 0), 0);
+
+            document.getElementById('dash-total-revenue').textContent = revenue.toFixed(2);
+            document.getElementById('dash-total-orders').textContent = salesHistory.length;
+            document.getElementById('dash-total-items').textContent = itemsCount;
+        }
+
+        function openHistoryModal() {
+            renderHistoryTable();
+            toggleModal('history-modal');
+        }
+
+        function handlePeriodChange() {
+            const val = document.getElementById('history-period-select').value;
+            const customContainer = document.getElementById('custom-date-container');
+            customContainer.style.display = (val === 'custom') ? 'inline-flex' : 'none';
+            renderHistoryTable();
+        }
+
+        function getFilteredHistory() {
+            const period = document.getElementById('history-period-select').value;
+            const now = new Date();
+
+            return salesHistory.filter(o => {
+                const oDate = parseOrderDate(o);
+
+                if (period === 'today') {
+                    return oDate.toDateString() === now.toDateString();
+                } 
+                else if (period === 'week') {
+                    const firstDayOfWeek = new Date(now);
+                    const day = now.getDay() || 7;
+                    firstDayOfWeek.setDate(now.getDate() - day + 1);
+                    firstDayOfWeek.setHours(0, 0, 0, 0);
+                    return oDate >= firstDayOfWeek;
+                } 
+                else if (period === 'month') {
+                    return oDate.getMonth() === now.getMonth() && oDate.getFullYear() === now.getFullYear();
+                } 
+                else if (period === 'custom') {
+                    const startVal = document.getElementById('history-start-date').value;
+                    const endVal = document.getElementById('history-end-date').value;
+                    
+                    if (!startVal && !endVal) return true;
+
+                    let startDate = startVal ? new Date(startVal) : new Date(0);
+                    startDate.setHours(0, 0, 0, 0);
+
+                    let endDate = endVal ? new Date(endVal) : new Date();
+                    endDate.setHours(23, 59, 59, 999);
+
+                    return oDate >= startDate && oDate <= endDate;
+                }
+
+                return true;
+            });
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            const filteredData = getFilteredHistory();
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">ไม่พบข้อมูลประวัติการขายในช่วงเวลานี้</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredData.slice().reverse().map(o => `
+                <tr>
+                    <td><strong>${o.orderId}</strong></td>
+                    <td>${o.timestamp}</td>
+                    <td>${o.items.map(i => `${i.name} (x${i.qty})`).join(', ')}</td>
+                    <td>฿${o.totalAmount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportSalesExcel() {
+            const filteredData = getFilteredHistory();
+            if (!filteredData.length) return alert("ไม่มีข้อมูลประวัติการขายในช่วงเวลานี้!");
+            
+            const excelData = filteredData.map(o => ({
+                "เลขที่ออเดอร์": o.orderId,
+                "วัน-เวลา": o.timestamp,
+                "รายการสินค้า": o.items.map(i => `${i.name} (x${i.qty})`).join(', '),
+                "ยอดรวม (บาท)": o.totalAmount
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Sales History");
+            XLSX.writeFile(workbook, `sales_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        function exportFullBackupJSON() {
+            const backupData = { products, salesHistory };
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `full_pos_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+        }
+
+        function importFullBackupJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (data.products && data.salesHistory) {
+                        products = data.products;
+                        salesHistory = data.salesHistory;
+                        localStorage.setItem('pos_products', JSON.stringify(products));
+                        localStorage.setItem('pos_sales_history', JSON.stringify(salesHistory));
+                        renderApp();
+                        alert("คืนค่าข้อมูลสำเร็จ!");
+                        toggleModal('backup-modal');
+                    }
+                } catch (err) { alert("ไฟล์ไม่ถูกต้อง"); }
+            };
+            reader.readAsText(file);
+        }
+
+        async function downloadPDF() {
+            if (!cart.length) return alert("ไม่มีสินค้าในตะกร้า!");
+            
+            const el = document.getElementById('cart-receipt');
+            const images = el.querySelectorAll('.cart-item-thumb');
+            const controls = el.querySelectorAll('.cart-controls');
+            const cartActions = el.querySelector('.cart-actions');
+            const cashInput = document.getElementById('cash-received');
+            const cashPrintText = document.getElementById('cash-received-print');
+            const changeWrapper = document.getElementById('change-amount-wrapper');
+            const changePrintText = document.getElementById('change-amount-print');
+
+            calculateChange();
+
+            images.forEach(img => img.style.display = 'none');
+            controls.forEach(ctrl => ctrl.style.display = 'none');
+            if (cartActions) cartActions.style.display = 'none';
+            
+            cashInput.style.display = 'none';
+            cashPrintText.style.display = 'inline';
+            changeWrapper.style.display = 'none';
+            changePrintText.style.display = 'inline';
+
+            const opt = {
+                margin: [0.3, 0.3, 0.3, 0.3],
+                filename: `Receipt_${document.getElementById('receipt-no').innerText}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, scrollX: 0 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            try {
+                await html2pdf().set(opt).from(el).save();
+            } catch (err) {
+                console.error("PDF Export Error:", err);
+                alert("เกิดข้อผิดพลาดในการสร้าง PDF");
+            } finally {
+                images.forEach(img => img.style.display = '');
+                controls.forEach(ctrl => ctrl.style.display = '');
+                if (cartActions) cartActions.style.display = '';
+                
+                cashInput.style.display = '';
+                cashPrintText.style.display = 'none';
+                changeWrapper.style.display = '';
+                changePrintText.style.display = 'none';
+            }
+        }
+
+        const btnBackToTop = document.getElementById('btn-back-to-top');
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                btnBackToTop.classList.add('show');
+            } else {
+                btnBackToTop.classList.remove('show');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        loadInitialDataFromJSON();
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+{
+  "appVersion": "1.0.8",
+  "exportDate": "2026-08-25T07:47:23.594Z",
+  "products": [
+    {
+      "id": 1,
+      "name": "ข้าวแดง (Red Rice)",
+      "category": "White",
+      "price": 180,
+      "weight": "2 kg",
+      "image": "https://www.kwannamom.com/img/product/redrice.jpg"
+    },
+    {
+      "id": 2,
+      "name": "ข้าวกล้องหอมมะลิ (Basmati Rice)",
+      "category": "Brown Rice",
+      "price": 220,
+      "weight": "2 kg",
+      "image": "https://www.kwannamom.com/img/product/brownrice.jpg"
+    },
+    {
+      "id": 3,
+      "name": "ข้าวมะลินิล (Black Rice)",
+      "category": "Specialty",
+      "price": 250,
+      "weight": "1 kg",
+      "image": "https://www.kwannamom.com/img/product/blackrice.jpg"
+    },
+    {
+      "id": 4,
+      "name": "ข้าวเหนียวขัดขาว (Glutinous White Rice)",
+      "category": "Specialty",
+      "price": 210,
+      "weight": "1 kg",
+      "image": "https://www.kwannamom.com/img/product/glutinouswhite.jpg"
+    },
+    {
+      "id": 5,
+      "name": "ข้าวผสม 3 สี (mixrice)",
+      "category": "Specialty",
+      "price": 290,
+      "weight": "2 kg",
+      "image": "https://www.kwannamom.com/img/product/mixrice.jpg"
+    },
+	{
+      "id": 6,
+      "name": "ข้าวหอมซ้อมมือ (Coarhe Rice)",
+      "category": "Specialty",
+      "price": 290,
+      "weight": "2 kg",
+      "image": "https://www.kwannamom.com/img/product/coarhrice.jpg"
+    },
+	{
+      "id": 7,
+      "name": "ข้าวกล้องงอก (Brown Gaba Rice)",
+      "category": "Specialty",
+      "price": 290,
+      "weight": "2 kg",
+      "image": "https://www.kwannamom.com/img/product/browngabarice.jpg"
+    },
+	{
+      "id": 8,
+      "name": "แกลบ (Rice Husk)",
+      "category": "Others",
+      "price": 5,
+      "weight": "1 กระสอบปุย",
+      "image": "https://biokasetpan.com/album/product/large/3ba5b3a6313dfbd266f4c82b1d82deee.jpg"
+    },
+	{
+      "id": 9,
+      "name": "รำอ่อน(Rice Bran)",
+      "category": "Others",
+      "price": 5,
+      "weight": "1 กก.",
+      "image": "https://fm.lnwfile.com/_/fm/_raw/pl/s4/jg.jpg"
+    },
+	{
+      "id": 10,
+      "name": "ปุยอินทรีย์(soilmate)**ตัวอย่าง",
+      "category": "Others",
+      "price": -0.00,
+      "weight": "1/20 กก. กระสอบปุย.",
+      "image": "https://www.soilmate.co.th/uploads/fertilizers/935e1-soilmate-50kg-.png"
+    },
+	{
+      "id": 10,
+      "name": "ปุยอินทรีย์ยอดปุย(soilmate)**ตัวอย่าง",
+      "category": "Others",
+      "price": -0.00,
+      "weight": "1/20 กก. กระสอบปุย.",
+      "image": "https://cache-igetweb-v2.mt108.info/uploads/images-cache/10869/product/d983eca10b4761cdbe13fef1429ee6ff_full.png"
+    }
+	
+  ],
+  
+  
+  
+  "salesHistory": [
+    {
+      "orderId": "ORD-1787643901009",
+      "timestamp": "25/8/2569 14:45:01",
+      "isoDate": "2026-08-25T07:45:01.009Z",
+      "items": [
+        {
+          "name": "ข้าวไรซ์เบอร์รี่ (Wild Black Rice)",
+          "price": 250,
+          "qty": 3
+        },
+        {
+          "name": "ข้าวสังข์หยดออร์แกนิค (Red Cargo)",
+          "price": 210,
+          "qty": 1
+        }
+      ],
+      "totalAmount": 960,
+      "cashReceived": 1000,
+      "changeAmount": 40
+    },
+    {
+      "orderId": "ORD-1787643919266",
+      "timestamp": "25/8/2569 14:45:19",
+      "isoDate": "2026-08-25T07:45:19.267Z",
+      "items": [
+        {
+          "name": "ข้าวหอมมะลิออร์แกนิค (Jasmine Rice)",
+          "price": 180,
+          "qty": 7
+        }
+      ],
+      "totalAmount": 1260,
+      "cashReceived": 1500,
+      "changeAmount": 240
+    },
+    {
+      "orderId": "ORD-1787643941530",
+      "timestamp": "25/8/2569 14:45:41",
+      "isoDate": "2026-08-25T07:45:41.530Z",
+      "items": [
+        {
+          "name": "ข้าวบาสมาติกล้อง (Brown Basmati)",
+          "price": 220,
+          "qty": 2
+        },
+        {
+          "name": "ข้าวหอมมะลิออร์แกนิค (Jasmine Rice)",
+          "price": 180,
+          "qty": 2
+        },
+        {
+          "name": "ข้าวไรซ์เบอร์รี่ (Wild Black Rice)",
+          "price": 250,
+          "qty": 2
+        },
+        {
+          "name": "ข้าวสังข์หยดออร์แกนิค (Red Cargo)",
+          "price": 210,
+          "qty": 1
+        },
+        {
+          "name": "ข้าวกล้องงอกกาบา (GABA Brown)",
+          "price": 290,
+          "qty": 1
+        }
+      ],
+      "totalAmount": 1800,
+      "cashReceived": 1999,
+      "changeAmount": 199
+    }
+  ]
+}
