@@ -1089,9 +1089,15 @@
             reader.readAsText(file);
         }
 
+
         async function downloadPDF() {
+		
+			const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const cash = parseFloat(document.getElementById('cash-received').value) || 0;
+
             if (!cart.length) return alert("ไม่มีสินค้าในตะกร้า!");
-            
+            if (cash < total) return alert(`เงินไม่พอ ขาดอีก ฿${(total - cash).toFixed(2)}`);
+			
             const el = document.getElementById('cart-receipt');
             const images = el.querySelectorAll('.cart-item-thumb');
             const controls = el.querySelectorAll('.cart-controls');
