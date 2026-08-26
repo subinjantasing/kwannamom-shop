@@ -18,7 +18,8 @@
             --primary-hover: #1e3d1a;
             --secondary: #8fbc8f;
             --accent: #d4a373;
-            --bg: #f8f9fa;
+            --bg: #f8f9fa; 
+			--imbg: url('demo.png');
             --card-bg: #ffffff;
             --text: #2b2b2b;
             --info: #17a2b8;
@@ -32,12 +33,33 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
         html { scroll-behavior: smooth; }
         body { 
+			position: relative;
+			background-image: var(--imbg); 
             background-color: var(--bg); 
             color: var(--text); 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+			overflow-x: hidden; /* ป้องกันขอบเบลอล้นหน้าจอ */
         }
+		/* สร้างชั้นพื้นหลังแยกต่างหากสำหรับเบลอรูป */
+		body::before {
+			content: "";
+			position: fixed;
+			top: -10px;
+			left: -10px;
+			right: -10px;
+			bottom: -10px;
+			background-image: var(--imbg);
+			/* 1. ยกเลิกการขยายรูป ให้ใช้ขนาดจริงของไฟล์ */
+			background-size: auto; 
+			/* 2. ตั้งค่าให้เริ่มจัดวางจากมุมซ้ายบน */
+			background-position: top left; 
+			/* 3. เปิดการวนซ้ำทั้งแนวนอนและแนวตั้ง */
+			background-repeat: repeat; 
+			filter: blur(3px);
+			z-index: -1;
+		}
 
         header {
             background-color: var(--primary);
@@ -329,13 +351,15 @@
         }
         .cart-item-title {
             font-weight: 600;
-            line-height: 1.3;
+            line-height: 1.35;
             margin-bottom: 0.2rem;
             color: #333;
+            word-break: break-word;
         }
         .cart-item-price-detail {
             color: #555;
             font-size: 0.82rem;
+            margin-top: 2px;
         }
 
         .cart-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
@@ -365,7 +389,7 @@
             border: 1px solid #bbb; border-radius: 6px;
             font-size: 1rem; text-align: right; font-weight: 600;
         }
-        .print-text-only { display: none; font-size: 1rem; font-weight: 700; color: #000; }
+        .print-text-only { display: none; font-size: 1rem; font-weight: 700; color: #000; text-align: right; }
         .change-text { font-size: 1.1rem; font-weight: 700; color: var(--danger); }
         .change-text.sufficient { color: var(--primary); }
 
@@ -458,7 +482,7 @@
             .cart-actions, .qty-btn, .delete-btn { display: none !important; }
             .cart-item-thumb { display: none !important; }
             .payment-input, #change-amount-wrapper { display: none !important; }
-            .print-text-only { display: inline !important; }
+            .print-text-only { display: inline-block !important; }
             footer, .back-to-top { display: none !important; }
         }
     </style>
@@ -1089,15 +1113,13 @@
             reader.readAsText(file);
         }
 
-
         async function downloadPDF() {
-		
-			const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
             const cash = parseFloat(document.getElementById('cash-received').value) || 0;
 
             if (!cart.length) return alert("ไม่มีสินค้าในตะกร้า!");
             if (cash < total) return alert(`เงินไม่พอ ขาดอีก ฿${(total - cash).toFixed(2)}`);
-			
+            
             const el = document.getElementById('cart-receipt');
             const images = el.querySelectorAll('.cart-item-thumb');
             const controls = el.querySelectorAll('.cart-controls');
@@ -1114,9 +1136,9 @@
             if (cartActions) cartActions.style.display = 'none';
             
             cashInput.style.display = 'none';
-            cashPrintText.style.display = 'inline';
+            cashPrintText.style.display = 'inline-block';
             changeWrapper.style.display = 'none';
-            changePrintText.style.display = 'inline';
+            changePrintText.style.display = 'inline-block';
 
             const opt = {
                 margin: [0.3, 0.3, 0.3, 0.3],
