@@ -1,5 +1,5 @@
 {
-  "appVersion": "1.0.8",
+  "appVersion": "1.2.0",
   "exportDate": "2026-08-25T07:47:23.594Z",
   "products": [
     {
@@ -92,79 +92,6 @@
     }
 	
   ],
-  
-  
-  
   "salesHistory": [
-    {
-      "orderId": "ORD-1787643901009",
-      "timestamp": "25/8/2569 14:45:01",
-      "isoDate": "2026-08-25T07:45:01.009Z",
-      "items": [
-        {
-          "name": "ข้าวไรซ์เบอร์รี่ (Wild Black Rice)",
-          "price": 250,
-          "qty": 3
-        },
-        {
-          "name": "ข้าวสังข์หยดออร์แกนิค (Red Cargo)",
-          "price": 210,
-          "qty": 1
-        }
-      ],
-      "totalAmount": 960,
-      "cashReceived": 1000,
-      "changeAmount": 40
-    },
-    {
-      "orderId": "ORD-1787643919266",
-      "timestamp": "25/8/2569 14:45:19",
-      "isoDate": "2026-08-25T07:45:19.267Z",
-      "items": [
-        {
-          "name": "ข้าวหอมมะลิออร์แกนิค (Jasmine Rice)",
-          "price": 180,
-          "qty": 7
-        }
-      ],
-      "totalAmount": 1260,
-      "cashReceived": 1500,
-      "changeAmount": 240
-    },
-    {
-      "orderId": "ORD-1787643941530",
-      "timestamp": "25/8/2569 14:45:41",
-      "isoDate": "2026-08-25T07:45:41.530Z",
-      "items": [
-        {
-          "name": "ข้าวบาสมาติกล้อง (Brown Basmati)",
-          "price": 220,
-          "qty": 2
-        },
-        {
-          "name": "ข้าวหอมมะลิออร์แกนิค (Jasmine Rice)",
-          "price": 180,
-          "qty": 2
-        },
-        {
-          "name": "ข้าวไรซ์เบอร์รี่ (Wild Black Rice)",
-          "price": 250,
-          "qty": 2
-        },
-        {
-          "name": "ข้าวสังข์หยดออร์แกนิค (Red Cargo)",
-          "price": 210,
-          "qty": 1
-        },
-        {
-          "name": "ข้าวกล้องงอกกาบา (GABA Brown)",
-          "price": 290,
-          "qty": 1
-        }
-      ],
-      "totalAmount": 1800,
-      "cashReceived": 1999,
-      "changeAmount": 199
-    }
-  ]
+ ]
 }
